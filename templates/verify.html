@@ -30,11 +30,12 @@
                     <h2>Enter details to verify the signature</h2>
                 </div>
                 <form method="post" enctype="multipart/form-data">
-                    <div class="mb-3" ><label class="form-label" for="subject" style="visibility: hidden;"><strong>Customer ID</strong></label><input style="visibility: hidden;" class="form-control" type="text" style="margin-bottom: 16px;" inputmode="numeric" name="cus_id"><label class="form-label text-center" style="display: block;"></label><label class="form-label"><strong>Mobile number</strong></label><input class="form-control" type="number" style="margin-bottom: 16px;" name="mob"><label class="form-label"><strong>Upload test signature</strong></label><input class="form-control" type="file" style="margin-bottom: 2%;" accept="image/*" required="" name="tf"><button class="btn btn-primary" type="submit" style="margin-top: 3%;">Verify</button>
+                    <div class="mb-3" ><label class="form-label" for="subject"><strong>Customer ID</strong></label><input  class="form-control" type="text" style="margin-bottom: 16px;" inputmode="numeric" name="cus_id"><label class="form-label text-center" style="display: block;"></label><label class="form-label"><strong>Mobile number</strong></label><input class="form-control" type="number" style="margin-bottom: 16px;" name="mob"><label class="form-label"><strong>Upload test signature</strong></label><input class="form-control" type="file" style="margin-bottom: 2%;" accept="image/*" required="" name="tf"><button class="btn btn-primary" type="submit" style="margin-top: 3%;">Verify</button>
                         <p class="text-center" style="margin-top: 5%;font-size: 20px;color: var(--bs-danger);">{{ decision }}</p>
                     </div>
                     <div class="text-center"><a class="btn btn-primary" role="button" style="background: var(--bs-danger);border-style: none;" href="/newreg">New customer?&nbsp; Register here</a></div>
-                    <div class="text-center" style="margin-top: 2%;"><a class="btn btn-primary" role="button" style="background: var(--bs-danger);border-style: none;" href="/oneshot"> Single shot</a></div>
+                    <div class="text-center" style="margin-top: 2%;"><a class="btn btn-primary" role="button" style="background: var(--bs-blue);border-style: none;" href="/oneshot"> Single shot Verification</a></div>
+                    <div class="text-center" style="margin-top: 2%;"><a class="btn btn-primary" role="button" style="background: var(--bs-blue);border-style: none;" href="/allCus"> All customers</a></div>
                 </form>
             </div>
         </section>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>Signature Verifivation</title>
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='bootstrap.min.css') }}">
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='ionicons.min.css') }}">
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='animate.min.css') }}">
+
+
+</head>
+
+<body>
+    <nav class="navbar navbar-dark navbar-expand-lg fixed-top bg-white portfolio-navbar gradient">
+        <div class="container"><a class="navbar-brand logo" href="/">WRITER INDEPENDENT SIGNATURE VERIFICATION</a><button data-bs-toggle="collapse" class="navbar-toggler" data-bs-target="#navbarNav"><span class="visually-hidden">Toggle navigation</span></button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"></li>
+                    <li class="nav-item"></li>
+                    <li class="nav-item"></li>
+                    <li class="nav-item"></li>
+                    
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <main class="page hire-me-page">
+        
+        
+        <div class="table-responsive" style="margin: 20px;margin-bottom: 100px;">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th class="text-center" style="padding: 0px;padding-bottom: 12px;width: 242px;padding-top: 12px;">Customer ID</th>
+                        <th class="text-center" style="padding: 0px;padding-bottom: 12px;width: 242px;">Name</th>
+                        <th class="text-center" style="padding: 0px;padding-bottom: 12px;width: 242px;">DOB</th>
+                        <th class="text-center" style="padding: 0px;padding-bottom: 12px;width: 242px;">Mobile number</th>
+                        <th class="text-center" style="padding: 0px;padding-bottom: 12px;width: 242px;">Link</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cus in cuss %}
+                    <tr>
+                        <td class="text-center" style="vertical-align:middle">{{ cus[0] }}</td>
+                        <td class="text-center" style="vertical-align:middle">{{ cus[1] }}</td>
+                        <td class="text-center" style="vertical-align:middle">{{ cus[2] }}</td>
+                        <td class="text-center" style="vertical-align:middle">{{ cus[3] }}</td>
+                        <td class="text-center" style="vertical-align:middle"> <img src='static\\sign_db\\{{ cus[3] }}\\{{ cus[3] }}_1.png' width="150" height="100"> </td><!--"{{ url_for('static', filename='sign_db\\1657287757\\1657287757_1.png') }}"-->
+                    </tr>
+                    {% endfor %}
+                    <tr></tr>
+                </tbody>
+            </table>
+            <div class="text-center" style="margin-top: 2%;"><a class="btn btn-primary" role="button" style="background: var(--bs-blue);border-style: none;" href="/verify"> Return to homepage</a></div>
+        </div>
+        
+
+
+
+    </main>
+    <script src="{{url_for('static', filename='bootstrap.min.js')}}"></script>
+    <script src="{{url_for('static', filename='bs-init.js')}}"></script>
+    <script src="{{url_for('static', filename='theme.js')}}"></script>
+    <script src="{{url_for('static', filename='pikaday.min.js')}}"></script>
+</body>
+
+</html>

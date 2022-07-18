@@ -39,7 +39,7 @@ random.set_seed(42)
 img_h, img_w = 155, 220
 
 
-OPT_TH=0.6903344
+OPT_TH=0.7881761 #0.6903344
 
 
 from tensorflow.compat.v1 import ConfigProto
@@ -75,7 +75,7 @@ model.add(BatchNormalization())
 
 
 model.add( GlobalAveragePooling2D() )
-model.add( Dense(16) )
+model.add( Dense(128) )#16
 model.add(Lambda(lambda  x: K.l2_normalize(x,axis=1)))
 
 ################Model END###########################
@@ -84,8 +84,9 @@ model.add(Lambda(lambda  x: K.l2_normalize(x,axis=1)))
 
 def image_preprocessing(signature):
     signature = cv2.imread(signature)
-    blurred=cv2.medianBlur(signature,3)
-
+    noiseless_image_bw = cv2.fastNlMeansDenoising(signature, None, 20, 7, 21)
+    blurred=cv2.medianBlur(noiseless_image_bw,3)
+    
     no_bg_gray=cv2.cvtColor(blurred, cv2.COLOR_BGR2GRAY)
     ret3,thres = cv2.threshold(no_bg_gray,0,255,cv2.THRESH_BINARY+cv2.THRESH_OTSU)
 
@@ -161,14 +162,14 @@ class SiameseModel(Model):
 
 siamese_model = SiameseModel(siamese_network)
 siamese_model.built=True
-siamese_model.load_weights("E:\\Academics\\Project\\PureSignetCustomWts\\pureSignet_9.h5")
+siamese_model.load_weights("cm.h5")
 siamese_model.compile(optimizer=optimizers.Adam(0.00001))
 
 
 def remove_temp():
     for dir in os.listdir("D:\\Desktop\\project\\tempfiles"):
-        if 'foobar' in dir:
-            os.remove(dir)
+        if 'fooo' in dir:
+            os.remove("D:\\Desktop\\project\\tempfiles\\"+dir)
 
 def image_preprocessing_ver(signature):
         no_bg_gray=cv2.cvtColor(signature, cv2.COLOR_BGR2GRAY)
@@ -223,9 +224,30 @@ def index():
 def index_post():
     usr_name = request.form['usr_name']
     passwd=request.form['passwd']
-    if usr_name=='admin' and passwd=='admin':
-        return redirect('/verify')
-    return render_template('error.html', error_msg='Incorrect User ID or password')
+    org_details=cursor.execute('SELECT * FROM ORGANIZATION WHERE USERNAME=(?)', (usr_name,)).fetchall()
+    try:
+        if passwd==org_details[0][1]:
+            return redirect('/verify')
+        else:
+            return render_template('error.html', error_msg='Incorrect username or passwrod')
+    except:
+        return render_template('error.html', error_msg='User not exists')
+
+
+@app.route('/orgReg')
+def orgReg():
+    return render_template('orgReg.html')
+@app.route('/orgReg', methods=['GET','POST'])
+def orgReg_post():
+    org_name = request.form['org_name']
+    org_pass=request.form['org_pass']
+    try:
+        cursor.execute("INSERT INTO ORGANIZATION VALUES (?, ?)", (org_name, org_pass))
+    except:
+        return render_template('error.html', error_msg='Organization already exists.')
+    return redirect('/')
+
+
 
 @app.route('/verify')
 def verify():
@@ -239,22 +261,25 @@ def verify_post():
 
     file_name=str(int(time()))
     remove_temp()
-    testf.save("D:\\Desktop\\project\\tempfiles\\"+file_name+'_1.png')
+    testf.save("D:\\Desktop\\project\\tempfiles\\"+file_name+'fooo_1.png')
 
-    if len(cus_id)!=0:
-        cus_info=cursor.execute('SELECT * FROM SIGN_INFO WHERE CUSTOMER_ID = (?)', (cus_id,)).fetchall()[0]
-    elif len(mob)!=0:
-        cus_info=cursor.execute('SELECT * FROM SIGN_INFO WHERE MOBILE = (?)', (mob,)).fetchall()[0]
-    else:
-        return render_template('error.html', error_msg='Details are insufficient')
+    try:
+        if len(cus_id)!=0:
+            cus_info=cursor.execute('SELECT * FROM SIGN_INFO WHERE CUSTOMER_ID = (?)', (cus_id,)).fetchall()[0]
+        elif len(mob)!=0:
+            cus_info=cursor.execute('SELECT * FROM SIGN_INFO WHERE MOBILE = (?)', (mob,)).fetchall()[0]
+        else:
+            return render_template('error.html', error_msg='Details are insufficient')
+    except:
+        return render_template('error.html', error_msg='Customer not exists. Try registering beforing verification or try Oneshot method.')
     sign_file=cus_info[3]
     cus_dob=cus_info[2]
 
-    org1=cv2.imread("D:\\Desktop\\project\\sign_db\\"+sign_file+'\\'+sign_file+'_1.png')
-    org2=cv2.imread("D:\\Desktop\\project\\sign_db\\"+sign_file+'\\'+sign_file+'_2.png')
-    org3=cv2.imread("D:\\Desktop\\project\\sign_db\\"+sign_file+'\\'+sign_file+'_3.png')
-    org4=cv2.imread("D:\\Desktop\\project\\sign_db\\"+sign_file+'\\'+sign_file+'_3.png')
-    test_img=cv2.imread("D:\\Desktop\\project\\tempfiles\\"+file_name+'_1.png')
+    org1=cv2.imread("D:\\Desktop\\project\\sign_db\\static\\"+sign_file+'\\'+sign_file+'_1.png')
+    org2=cv2.imread("D:\\Desktop\\project\\sign_db\\static\\"+sign_file+'\\'+sign_file+'_2.png')
+    org3=cv2.imread("D:\\Desktop\\project\\sign_db\\static\\"+sign_file+'\\'+sign_file+'_3.png')
+    org4=cv2.imread("D:\\Desktop\\project\\sign_db\\static\\"+sign_file+'\\'+sign_file+'_3.png')
+    test_img=cv2.imread("D:\\Desktop\\project\\tempfiles\\"+file_name+'fooo_1.png')
     decision=test_protocol(org1, org2, org3, org4, test_img, cus_dob)
     
     return render_template('verify.html', decision=decision)
@@ -273,19 +298,19 @@ def newreg_post():
         mob=request.form['mob']
         dob=request.form['dob']
 
-        os.makedirs("D:\\Desktop\\project\\sign_db\\"+file_name)
+        os.makedirs("D:\\Desktop\\project\\sign_db\\static\\"+file_name)
 
         f1 = request.files['f1']
-        f1.save("D:\\Desktop\\project\\sign_db\\"+file_name+'\\'+file_name+'_1.png')
+        f1.save("D:\\Desktop\\project\\sign_db\\static\\"+file_name+'\\'+file_name+'_1.png')
 
         f2 = request.files['f2']
-        f2.save("D:\\Desktop\\project\\sign_db\\"+file_name+'\\'+file_name+'_2.png')
+        f2.save("D:\\Desktop\\project\\sign_db\\static\\"+file_name+'\\'+file_name+'_2.png')
 
         f3 = request.files['f3']
-        f3.save("D:\\Desktop\\project\\sign_db\\"+file_name+'\\'+file_name+'_3.png')
+        f3.save("D:\\Desktop\\project\\sign_db\\static\\"+file_name+'\\'+file_name+'_3.png')
 
         f4 = request.files['f4']
-        f4.save("D:\\Desktop\\project\\sign_db\\"+file_name+'\\'+file_name+'_4.png')
+        f4.save("D:\\Desktop\\project\\sign_db\\static\\"+file_name+'\\'+file_name+'_4.png')
 
         cursor.execute('INSERT INTO SIGN_INFO(NAME, DOB, PATH, MOBILE) VALUES (?, ?, ?, ?)', (cus_name,dob, file_name, mob))
         sqliteConnection.commit()
@@ -303,11 +328,11 @@ def oneshot_submit():
     remove_temp()
     file_name1=str(int(time()))
     file_name2=str(int(time()))
-    org.save("D:\\Desktop\\project\\tempfiles\\"+file_name1+'_oo.png')
-    test.save("D:\\Desktop\\project\\tempfiles\\"+file_name2+'_tt.png')
+    org.save("D:\\Desktop\\project\\tempfiles\\"+file_name1+'_ofooo.png')
+    test.save("D:\\Desktop\\project\\tempfiles\\"+file_name2+'_tfooo.png')
 
-    orginal_sign=cv2.imread("D:\\Desktop\\project\\tempfiles\\"+file_name1+'_oo.png')
-    test_sign=cv2.imread("D:\\Desktop\\project\\tempfiles\\"+file_name1+'_tt.png')
+    orginal_sign=cv2.imread("D:\\Desktop\\project\\tempfiles\\"+file_name1+'_ofooo.png')
+    test_sign=cv2.imread("D:\\Desktop\\project\\tempfiles\\"+file_name1+'_tfooo.png')
 
     orginal_sign_arr=image_preprocessing_ver(orginal_sign)
     test_sign_arr=image_preprocessing_ver(test_sign)
@@ -322,4 +347,11 @@ def oneshot_submit():
         decision='Forged signature'
     return render_template('oneshot.html', decision=decision)
 
-app.run()
+
+@app.route('/allCus')
+def allCus():
+    cuss=cursor.execute('SELECT * FROM SIGN_INFO').fetchall()
+    return render_template('all_cus.html', cuss=cuss)
+
+
+app.run(debug=True)
