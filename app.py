@@ -1,3 +1,4 @@
+from pickle import TRUE
 from unicodedata import decimal
 from graphviz import render
 from tensorflow.keras.initializers import HeUniform, GlorotNormal
@@ -229,9 +230,9 @@ def index_post():
         if passwd==org_details[0][1]:
             return redirect('/verify')
         else:
-            return render_template('error.html', error_msg='Incorrect username or passwrod')
+            return render_template('error.html', error_msg='Incorrect username or passwrod', home_url='')
     except:
-        return render_template('error.html', error_msg='User not exists')
+        return render_template('error.html', error_msg='User not exists', home_url='')
 
 
 @app.route('/orgReg')
@@ -244,7 +245,7 @@ def orgReg_post():
     try:
         cursor.execute("INSERT INTO ORGANIZATION VALUES (?, ?)", (org_name, org_pass))
     except:
-        return render_template('error.html', error_msg='Organization already exists.')
+        return render_template('error.html', error_msg='Organization already exists.', home_url='')
     return redirect('/')
 
 
@@ -269,16 +270,16 @@ def verify_post():
         elif len(mob)!=0:
             cus_info=cursor.execute('SELECT * FROM SIGN_INFO WHERE MOBILE = (?)', (mob,)).fetchall()[0]
         else:
-            return render_template('error.html', error_msg='Details are insufficient')
+            return render_template('error.html', error_msg='Details are insufficient', home_url='verify')
     except:
-        return render_template('error.html', error_msg='Customer not exists. Try registering beforing verification or try Oneshot method.')
+        return render_template('error.html', error_msg='Customer not exists. Try registering beforing verification or try Oneshot method.', home_url='verify')
     sign_file=cus_info[3]
     cus_dob=cus_info[2]
 
-    org1=cv2.imread("D:\\Desktop\\project\\sign_db\\static\\"+sign_file+'\\'+sign_file+'_1.png')
-    org2=cv2.imread("D:\\Desktop\\project\\sign_db\\static\\"+sign_file+'\\'+sign_file+'_2.png')
-    org3=cv2.imread("D:\\Desktop\\project\\sign_db\\static\\"+sign_file+'\\'+sign_file+'_3.png')
-    org4=cv2.imread("D:\\Desktop\\project\\sign_db\\static\\"+sign_file+'\\'+sign_file+'_3.png')
+    org1=cv2.imread("D:\\Desktop\\project\\static\\sign_db\\"+sign_file+'\\'+sign_file+'_1.png')
+    org2=cv2.imread("D:\\Desktop\\project\\static\\sign_db\\"+sign_file+'\\'+sign_file+'_2.png')
+    org3=cv2.imread("D:\\Desktop\\project\\static\\sign_db\\"+sign_file+'\\'+sign_file+'_3.png')
+    org4=cv2.imread("D:\\Desktop\\project\\static\\sign_db\\"+sign_file+'\\'+sign_file+'_3.png')
     test_img=cv2.imread("D:\\Desktop\\project\\tempfiles\\"+file_name+'fooo_1.png')
     decision=test_protocol(org1, org2, org3, org4, test_img, cus_dob)
     
@@ -298,24 +299,24 @@ def newreg_post():
         mob=request.form['mob']
         dob=request.form['dob']
 
-        os.makedirs("D:\\Desktop\\project\\sign_db\\static\\"+file_name)
+        os.makedirs("D:\\Desktop\\project\\static\\sign_db\\"+file_name)
 
         f1 = request.files['f1']
-        f1.save("D:\\Desktop\\project\\sign_db\\static\\"+file_name+'\\'+file_name+'_1.png')
+        f1.save("D:\\Desktop\\project\\static\\sign_db\\"+file_name+'\\'+file_name+'_1.png')
 
         f2 = request.files['f2']
-        f2.save("D:\\Desktop\\project\\sign_db\\static\\"+file_name+'\\'+file_name+'_2.png')
+        f2.save("D:\\Desktop\\project\\static\\sign_db\\"+file_name+'\\'+file_name+'_2.png')
 
         f3 = request.files['f3']
-        f3.save("D:\\Desktop\\project\\sign_db\\static\\"+file_name+'\\'+file_name+'_3.png')
+        f3.save("D:\\Desktop\\project\\static\\sign_db\\"+file_name+'\\'+file_name+'_3.png')
 
         f4 = request.files['f4']
-        f4.save("D:\\Desktop\\project\\sign_db\\static\\"+file_name+'\\'+file_name+'_4.png')
+        f4.save("D:\\Desktop\\project\\static\\sign_db\\"+file_name+'\\'+file_name+'_4.png')
 
         cursor.execute('INSERT INTO SIGN_INFO(NAME, DOB, PATH, MOBILE) VALUES (?, ?, ?, ?)', (cus_name,dob, file_name, mob))
         sqliteConnection.commit()
     except:
-        return render_template('error.html', error_msg='Exception occured while creating account. Account may already exists !!!!')
+        return render_template('error.html', error_msg='Exception occured while creating account. Account may already exists !!!!', home_url='verify')
 
     return redirect('/verify')
 @app.route('/oneshot')
@@ -354,4 +355,4 @@ def allCus():
     return render_template('all_cus.html', cuss=cuss)
 
 
-app.run(debug=True)
+app.run(debug=TRUE)
